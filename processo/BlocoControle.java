@@ -44,6 +44,10 @@ public class BlocoControle {
         this.creditos = creditos;
     }
 
+    public int getCreditos() {
+        return creditos;
+    }
+
     public String getNomePrograma() {
         return nomePrograma;
     }

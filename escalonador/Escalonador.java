@@ -37,6 +37,7 @@ public class Escalonador {
     }
 
     public static void executaProcessos() {
+        // Distribuindo os creditos iniciais de acordo com a prioridade
         for (BlocoControle bloco : tabela.getTabela()) {
             bloco.setCreditos(bloco.getPrioridade());
         }
@@ -49,7 +50,8 @@ public class Escalonador {
         return quantum;
     }
 
-    public static void ordenaFilaDeProntos(List prontos, BlocoControle c){
+    public static void ordenaFilaDeProntos(){
+        // Ordena a fila de pronto pela ordem de tamanho dos creditos
         int i;
         int tamanho = prontos.size();
         if(prontos.isEmpty()) prontos.add(c);
@@ -58,7 +60,7 @@ public class Escalonador {
             for(i=0;i<prontos.size();i++){
                 BlocoControle a = (BlocoControle) prontos.get(i);
 
-                if(a.getPrioridade() < c.getPrioridade()){//tem que arrumar
+                if(a.getCreditos() < c.getCreditos()){//tem que arrumar
                     aux = prontos.subList(i, prontos.size()-1);
                     prontos.removeAll(aux);
                     prontos.set(i,c);
