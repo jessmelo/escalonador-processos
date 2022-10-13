@@ -17,10 +17,12 @@ public class Escalonador {
         TabelaProcessos tabela = new TabelaProcessos();
         for (File file : listOfFiles) {
             if (file.isFile()) {
-                BlocoControle bloco = new BlocoControle(file.getName());
-                bloco.setEstadoProcesso(Estado.PRONTO);
-                System.out.println("Carregando " + bloco.getNomePrograma());
-                tabela.adicionaBloco(bloco);
+                if (!file.getName().equals("prioridades.txt") && !file.getName().equals("quantum.txt")) {
+                    BlocoControle bloco = new BlocoControle("programas/" + file.getName());
+                    bloco.setEstadoProcesso(Estado.PRONTO);
+                    System.out.println("Carregando " + bloco.getNomePrograma());
+                    tabela.adicionaBloco(bloco);
+                }
             }
         }
     }
@@ -70,8 +72,7 @@ public class Escalonador {
 
     public static void main(String[] args) throws IOException {
         System.out.println("Hello");
-        setQuantum("programas/quantum.txt");
-        setPrioridade("programas/prioridades.txt");
+        lerProgramas();
     }
 }
 
