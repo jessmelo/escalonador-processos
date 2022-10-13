@@ -3,6 +3,7 @@ package escalonador;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import processo.BlocoControle;
 import processo.Estado;
@@ -36,50 +37,76 @@ public class Escalonador {
         }
     }
 
-    public static void executaProcessos() {
+    public static void distribuiCreditos() {
         // Distribuindo os creditos iniciais de acordo com a prioridade
         for (BlocoControle bloco : tabela.getTabela()) {
             bloco.setCreditos(bloco.getPrioridade());
         }
     }
-    public static int setQuantum(String quantumTxt) throws IOException {
-        FileReader quantumFile = new FileReader(quantumTxt);
+
+    public static void setQuantum() throws IOException {
+        // Configura quantum dos processos
+        FileReader quantumFile = new FileReader("programas/quantum.txt");
         BufferedReader reader = new BufferedReader(quantumFile);
         quantum = Integer.parseInt(reader.readLine());
-        System.out.println(quantum);
-        return quantum;
     }
 
     public static void ordenaFilaDeProntos(){
         // Ordena a fila de pronto pela ordem de tamanho dos creditos
         int i;
         int tamanho = prontos.size();
-        if(prontos.isEmpty()) prontos.add(c);
-        else{
-            List<BlocoControle> aux;
-            for(i=0;i<prontos.size();i++){
-                BlocoControle a = (BlocoControle) prontos.get(i);
 
-                if(a.getCreditos() < c.getCreditos()){//tem que arrumar
-                    aux = prontos.subList(i, prontos.size()-1);
-                    prontos.removeAll(aux);
-                    prontos.set(i,c);
-                    prontos.addAll(aux);
+        List<BlocoControle> aux = new ArrayList<>();
+
+        Iterator it = tabela.getTabela().iterator();
+
+        while(it.hasNext()){
+            BlocoControle c =(BlocoControle) it.next();
+            if (prontos.isEmpty()) prontos.add(c);
+            if (!prontos.isEmpty()) {
+                Iterator iter = prontos.iterator();
+                //for (i = 0; i < prontos.size(); i++)
+                while(iter.hasNext()){
+
+                    BlocoControle a = (BlocoControle) iter.next();
+
+
+                    if (a.getCreditos() < c.getCreditos()) {//tem que arrumar
+                        aux.addAll(prontos.subList(prontos.indexOf(a), prontos.size()));
+                        prontos.removeAll(aux);
+                        prontos.add(c);
+                        prontos.addAll(aux);
+                    }
+
                 }
-
+                //if (tamanho == prontos.size() && i == prontos.size())
+                  //  prontos.add(c);//fila não alterada, portanto ultimo da fila
             }
-            if(tamanho==prontos.size() && i==prontos.size())prontos.add(c);//fila não alterada, portanto ultimo da fila
         }
     }
 
-    public static void writeLog() {
+    public static void printaLista(){
+        System.out.println(prontos.size());
+        Iterator it= prontos.iterator();
+
+        while(it.hasNext()){
+            BlocoControle c =(BlocoControle) it.next();
+            System.out.println("Credito:"+c.getCreditos());
+        }
+    }
+    public static void executaProcessos() {
+
+    }
+    public static void exportaLog() {
 
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Hello");
         lerProgramas();
-        executaProcessos();
+        distribuiCreditos();
+        setQuantum();
+        ordenaFilaDeProntos();
+        printaLista();
     }
 }
 

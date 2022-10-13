@@ -28,6 +28,11 @@ public class BlocoControle {
         }
     }
 
+    @Override
+    public boolean equals(Object o){
+        if(this.nomePrograma==((BlocoControle)o).nomePrograma && this.prioridade == ((BlocoControle)o).prioridade) return true;
+        return false;
+    }
     public void setEstadoProcesso(Estado estadoProcesso) {
         this.estadoProcesso = estadoProcesso;
     }
