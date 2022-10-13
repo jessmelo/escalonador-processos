@@ -32,8 +32,16 @@ public class BlocoControle {
         this.estadoProcesso = estadoProcesso;
     }
 
+    public void setPrioridade(int prioridade) {
+        this.prioridade = prioridade;
+    }
+
     public int getPrioridade() {
         return prioridade;
+    }
+
+    public void setCreditos(int creditos) {
+        this.creditos = creditos;
     }
 
     public String getNomePrograma() {

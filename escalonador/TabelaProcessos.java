@@ -11,4 +11,8 @@ public class TabelaProcessos {
     public void adicionaBloco(BlocoControle bloco) {
         tabela.add(bloco);
     }
+
+    public List<BlocoControle> getTabela() {
+        return tabela;
+    }
 }

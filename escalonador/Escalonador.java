@@ -1,41 +1,45 @@
 package escalonador;
 
-
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
 import processo.BlocoControle;
 import processo.Estado;
 
 public class Escalonador {
     static int quantum;
-    static int prioridade;
+    static TabelaProcessos tabela = new TabelaProcessos();
+    static List<BlocoControle> prontos = new ArrayList<>();
 
     public static void lerProgramas() throws IOException {
+        // Carrega todos os arquivos programas .txt da pasta "programas" em ordem alfabetica
         File folder = new File("programas");
         File[] listOfFiles = folder.listFiles();
-        TabelaProcessos tabela = new TabelaProcessos();
+        Arrays.sort(listOfFiles);
+
+        // Carrega arquivo de prioridades
+        FileReader prioridadesFile = new FileReader("programas/prioridades.txt");
+        BufferedReader prioridades = new BufferedReader(prioridadesFile);
+
+        // Cria bloco de controle para cada programa e adiciona na tabela de processos
         for (File file : listOfFiles) {
             if (file.isFile()) {
                 if (!file.getName().equals("prioridades.txt") && !file.getName().equals("quantum.txt")) {
                     BlocoControle bloco = new BlocoControle("programas/" + file.getName());
                     bloco.setEstadoProcesso(Estado.PRONTO);
+                    bloco.setPrioridade(Integer.parseInt(prioridades.readLine()));
                     System.out.println("Carregando " + bloco.getNomePrograma());
                     tabela.adicionaBloco(bloco);
                 }
             }
         }
     }
-    public static int setPrioridade(String prioridadeTxt) throws IOException {
-        FileReader prioridadesFile = new FileReader(prioridadeTxt);
-        BufferedReader reader = new BufferedReader(prioridadesFile);
-        String line = reader.readLine();
-        while (line != null) {
-            prioridade = Integer.parseInt(line);
-            System.out.println(prioridade);
-            line = reader.readLine();
+
+    public static void executaProcessos() {
+        for (BlocoControle bloco : tabela.getTabela()) {
+            bloco.setCreditos(bloco.getPrioridade());
         }
-        return prioridade;
     }
     public static int setQuantum(String quantumTxt) throws IOException {
         FileReader quantumFile = new FileReader(quantumTxt);
@@ -73,6 +77,7 @@ public class Escalonador {
     public static void main(String[] args) throws IOException {
         System.out.println("Hello");
         lerProgramas();
+        executaProcessos();
     }
 }
 
