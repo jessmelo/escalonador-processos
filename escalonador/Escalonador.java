@@ -1,10 +1,8 @@
 package escalonador;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
 import processo.BlocoControle;
 import processo.Estado;
 
@@ -30,7 +28,6 @@ public class Escalonador {
                     BlocoControle bloco = new BlocoControle("programas/" + file.getName());
                     bloco.setEstadoProcesso(Estado.PRONTO);
                     bloco.setPrioridade(Integer.parseInt(prioridades.readLine()));
-                    System.out.println("Carregando " + bloco.getNomePrograma());
                     tabela.adicionaBloco(bloco);
                 }
             }
@@ -51,37 +48,12 @@ public class Escalonador {
         quantum = Integer.parseInt(reader.readLine());
     }
 
-    public static void ordenaFilaDeProntos(){
-        // Ordena a fila de pronto pela ordem de tamanho dos creditos
-        int i;
-        int tamanho = prontos.size();
-
-        List<BlocoControle> aux = new ArrayList<>();
-
-        Iterator it = tabela.getTabela().iterator();
-
-        while(it.hasNext()){
-            BlocoControle c =(BlocoControle) it.next();
-            if (prontos.isEmpty()) prontos.add(c);
-            if (!prontos.isEmpty()) {
-                Iterator iter = prontos.iterator();
-                //for (i = 0; i < prontos.size(); i++)
-                while(iter.hasNext()){
-
-                    BlocoControle a = (BlocoControle) iter.next();
-
-
-                    if (a.getCreditos() < c.getCreditos()) {//tem que arrumar
-                        aux.addAll(prontos.subList(prontos.indexOf(a), prontos.size()));
-                        prontos.removeAll(aux);
-                        prontos.add(c);
-                        prontos.addAll(aux);
-                    }
-
-                }
-                //if (tamanho == prontos.size() && i == prontos.size())
-                  //  prontos.add(c);//fila não alterada, portanto ultimo da fila
-            }
+    public static void ordenaFilaDeProntos() {
+        // Ordena a fila de pronto pelo tamanho dos creditos (do maior para o menor)
+        prontos = tabela.getTabela();
+        prontos.sort(Comparator.comparing(BlocoControle::getCreditos).reversed());
+        for (BlocoControle bloco : prontos) {
+            System.out.println("Carregando " + bloco.getNomePrograma());
         }
     }
 
@@ -91,11 +63,29 @@ public class Escalonador {
 
         while(it.hasNext()){
             BlocoControle c =(BlocoControle) it.next();
-            System.out.println("Credito:"+c.getCreditos());
+            System.out.println("Credito: "+c.getCreditos());
         }
     }
-    public static void executaProcessos() {
 
+    public static void executaProcessos() {
+        // Método que executa os processos
+        for (BlocoControle bloco: prontos) {
+            System.out.println("Executando " + bloco.getNomePrograma());
+            int instrucoes = 0;
+            for (int i = 0; i < bloco.getMemoriaRef().size(); i++) {
+                if (instrucoes == quantum){
+                    System.out.println("Interrompendo " + bloco.getNomePrograma() + " após " + i + " instrucoes");
+                    break;
+                }
+                System.out.println("instrucao");
+                if (bloco.getMemoriaRef().get(i).equals("E/S")){
+                    System.out.println("E/S iniciada em " + bloco.getNomePrograma());
+                    System.out.println("Interrompendo " + bloco.getNomePrograma() + " após " + i + " instrucoes");
+                    break;
+                }
+                instrucoes++;
+            }
+        }
     }
     public static void exportaLog() {
 
@@ -106,7 +96,7 @@ public class Escalonador {
         distribuiCreditos();
         setQuantum();
         ordenaFilaDeProntos();
-        printaLista();
+        executaProcessos();
     }
 }
 

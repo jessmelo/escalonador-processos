@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class BlocoControle {
@@ -33,6 +34,7 @@ public class BlocoControle {
         if(this.nomePrograma==((BlocoControle)o).nomePrograma && this.prioridade == ((BlocoControle)o).prioridade) return true;
         return false;
     }
+
     public void setEstadoProcesso(Estado estadoProcesso) {
         this.estadoProcesso = estadoProcesso;
     }
@@ -56,4 +58,16 @@ public class BlocoControle {
     public String getNomePrograma() {
         return nomePrograma;
     }
+
+    public List<String> getMemoriaRef() {
+        return memoriaRef;
+    }
+
+    public static class BlocoControleComparator implements Comparator<BlocoControle> {
+        @Override
+        public int compare(BlocoControle o1, BlocoControle o2) {
+            return o1.getCreditos() - o2.getCreditos();
+        }
+    }
 }
+
