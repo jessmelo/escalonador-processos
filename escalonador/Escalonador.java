@@ -5,11 +5,13 @@ import java.util.*;
 
 import processo.BlocoControle;
 import processo.Estado;
+import escalonador.ListaProntos;
 
 public class Escalonador {
     static int quantum;
     static TabelaProcessos tabela = new TabelaProcessos();
-    static List<BlocoControle> prontos = new ArrayList<>();
+    ListaProntos prontos;
+
 
     public static void lerProgramas() throws IOException {
         // Carrega todos os arquivos programas .txt da pasta "programas" em ordem alfabetica
@@ -48,33 +50,22 @@ public class Escalonador {
         quantum = Integer.parseInt(reader.readLine());
     }
 
-    public static void ordenaFilaDeProntos() {
-        // Ordena a fila de pronto pelo tamanho dos creditos (do maior para o menor)
-        prontos = tabela.getTabela();
-        prontos.sort(Comparator.comparing(BlocoControle::getCreditos).reversed());
-        for (BlocoControle bloco : prontos) {
-            System.out.println("Carregando " + bloco.getNomePrograma());
-        }
-    }
 
-    public static void printaLista(){
-        System.out.println(prontos.size());
-        Iterator it= prontos.iterator();
 
-        while(it.hasNext()){
-            BlocoControle c =(BlocoControle) it.next();
-            System.out.println("Credito: "+c.getCreditos());
-        }
-    }
 
-    public static void executaProcessos() {
+
+    public static void executaProcessos(ListaProntos prontos) {
         // Método que executa os processos
-        for (BlocoControle bloco: prontos) {
+        for (BlocoControle bloco: prontos.getProntos()) {
             System.out.println("Executando " + bloco.getNomePrograma());
+            // Decrementa o número de créditos quando comeca a execucao
+            bloco.setCreditos(bloco.getCreditos()-1);
             int instrucoes = 0;
             for (int i = 0; i < bloco.getMemoriaRef().size(); i++) {
                 if (instrucoes == quantum){
                     System.out.println("Interrompendo " + bloco.getNomePrograma() + " após " + i + " instrucoes");
+                    // Reposiciona a fila de prontos apos a execucao
+                    prontos.ordenaFilaDeProntos();
                     break;
                 }
                 System.out.println("instrucao");
@@ -93,10 +84,10 @@ public class Escalonador {
 
     public static void main(String[] args) throws IOException {
         lerProgramas();
+        ListaProntos prontos = new ListaProntos(tabela);
         distribuiCreditos();
         setQuantum();
-        ordenaFilaDeProntos();
-        executaProcessos();
+        executaProcessos(prontos);
     }
 }
 
