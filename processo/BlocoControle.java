@@ -10,12 +10,14 @@ import java.util.List;
 public class BlocoControle {
     String nomePrograma;
     List<String> memoriaRef = new ArrayList<>();
+    int registradorX;
+    int registradorY;
     Estado estadoProcesso;
     int contadorPrograma = 0;
     int prioridade;
     int creditos;
-    int registradorX;
-    int registradorY;
+    int tempoEspera;
+    public int trocas;
 
     public BlocoControle(String programaTxt) throws IOException {
         FileReader programa = new FileReader(programaTxt);
@@ -50,8 +52,8 @@ public class BlocoControle {
         return prioridade;
     }
 
-    public void setCreditos(int creditos) {
-        this.creditos = creditos;
+    public void setCreditos(int creds) {
+        this.creditos = creds;
     }
 
     public int getCreditos() {
@@ -88,6 +90,18 @@ public class BlocoControle {
 
     public List<String> getMemoriaRef() {
         return memoriaRef;
+    }
+
+    public void setTempoEspera(int tempoEspera) {
+        this.tempoEspera = tempoEspera;
+    }
+
+    public int getTempoEspera() {
+        return tempoEspera;
+    }
+
+    public void decrementaTempoEspera() {
+        tempoEspera--;
     }
 
     public static class BlocoControleComparator implements Comparator<BlocoControle> {

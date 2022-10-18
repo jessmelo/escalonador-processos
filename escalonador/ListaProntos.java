@@ -34,7 +34,6 @@ public class ListaProntos{
 
     public BlocoControle getPrimeiroDaLista() {
         BlocoControle primeiro = prontos.get(0);
-        removeBloco(prontos.get(0));
         return primeiro;
     }
 

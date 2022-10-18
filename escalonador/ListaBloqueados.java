@@ -3,25 +3,15 @@ package escalonador;
 import processo.BlocoControle;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
 public class ListaBloqueados {
 
-    List<BlocoControle> bloqueados; // lista de prontos
-    int tempoEspera;
+    List<BlocoControle> bloqueados; // lista de bloqueados
 
     public ListaBloqueados(){
         this.bloqueados= new ArrayList<>();
-    }
-
-    public void ordenaFilaDeProntos() {//metodo de ordenamento
-        // Ordena a fila de pronto pelo tamanho dos creditos (do maior para o menor)
-        bloqueados.sort(Comparator.comparing(BlocoControle::getCreditos).reversed());
-        for (BlocoControle bloco : bloqueados) {
-            System.out.println("Carregando " + bloco.getNomePrograma());
-        }
     }
 
     public void adicionaBloco(BlocoControle bloco) {
@@ -30,6 +20,11 @@ public class ListaBloqueados {
 
     public void removeBloco(BlocoControle bloco) {
         this.bloqueados.remove(bloco);
+    }
+
+    public BlocoControle getPrimeiroDaLista() {
+        BlocoControle primeiro = bloqueados.get(0);
+        return primeiro;
     }
 
     public void printaLista(){ // propositos de debugar
@@ -46,4 +41,9 @@ public class ListaBloqueados {
         return bloqueados;
     }
 
+    public void decrementaTempoEspera() {
+        for (BlocoControle bloco: bloqueados) {
+            bloco.decrementaTempoEspera();
+        }
+    }
 }

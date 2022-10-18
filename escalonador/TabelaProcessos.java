@@ -3,6 +3,7 @@ package escalonador;
 import processo.BlocoControle;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class TabelaProcessos {
@@ -16,4 +17,15 @@ public class TabelaProcessos {
     public List<BlocoControle> getTabela() {
         return tabela;
     }
+
+    public void printaLista(){ // propositos de debugar
+        System.out.println(tabela.size());
+        Iterator it= tabela.iterator();
+
+        while (it.hasNext()) {
+            BlocoControle c = (BlocoControle) it.next();
+            System.out.println("Credito: " + c.getPrioridade());
+        }
+    }
+
 }
