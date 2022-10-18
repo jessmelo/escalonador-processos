@@ -11,7 +11,7 @@ public class Escalonador {
     static int quantum;
     static TabelaProcessos tabela = new TabelaProcessos();
     ListaProntos prontos;
-
+    ListaProntos bloqueados;
 
     public static void lerProgramas() throws IOException {
         // Carrega todos os arquivos programas .txt da pasta "programas" em ordem alfabetica
@@ -50,44 +50,93 @@ public class Escalonador {
         quantum = Integer.parseInt(reader.readLine());
     }
 
-
-
-
-
-    public static void executaProcessos(ListaProntos prontos) {
-        // Método que executa os processos
-        for (BlocoControle bloco: prontos.getProntos()) {
+    public static void executaProcessos(ListaProntos prontos, ListaBloqueados bloqueados) {
+        // Método que executa os processos prontos
+        while (prontos.getProntos().size() > 0) {
+            // Pega o primeiro processo pronto e executa, a lista de prontos é atualizada
+            BlocoControle bloco = prontos.getPrimeiroDaLista();
+            bloco.setCreditos(bloco.getCreditos() - 1);
+            bloco.setEstadoProcesso(Estado.EXECUTANDO);
             System.out.println("Executando " + bloco.getNomePrograma());
-            // Decrementa o número de créditos quando comeca a execucao
-            bloco.setCreditos(bloco.getCreditos()-1);
+
             int instrucoes = 0;
-            for (int i = 0; i < bloco.getMemoriaRef().size(); i++) {
-                if (instrucoes == quantum){
-                    System.out.println("Interrompendo " + bloco.getNomePrograma() + " após " + i + " instrucoes");
-                    // Reposiciona a fila de prontos apos a execucao
-                    prontos.ordenaFilaDeProntos();
-                    break;
+            for (int i = 1; i <= quantum; i++) {
+                int contador = bloco.getContadorPrograma();
+                // Se for registrador X, atualizar registrador do bloco e contagem de instrucoes
+                if (bloco.getMemoriaRef().get(contador).startsWith("X=")) {
+                    instrucoes++;
+                    bloco.setRegistradorX(Integer.parseInt(bloco.getMemoriaRef().get(contador).substring(2)));
+                    bloco.incrementaContador();
                 }
-                System.out.println("instrucao");
-                if (bloco.getMemoriaRef().get(i).equals("E/S")){
+                // Se for registrador Y, atualizar registrador do bloco e contagem de instrucoes
+                if (bloco.getMemoriaRef().get(contador).startsWith("Y=")) {
+                    instrucoes++;
+                    bloco.setRegistradorY(Integer.parseInt(bloco.getMemoriaRef().get(contador).substring(2)));
+                    bloco.incrementaContador();
+                }
+                // Se for instrucao de comando, incrementa instrucoes e continua
+                if (bloco.getMemoriaRef().get(contador).equals("COM")) {
+                    instrucoes++;
+                    bloco.incrementaContador();
+                }
+                // Se for instrucao de E/S, interromper o processo
+                if (bloco.getMemoriaRef().get(contador).equals("E/S")) {
+                    instrucoes++;
                     System.out.println("E/S iniciada em " + bloco.getNomePrograma());
-                    System.out.println("Interrompendo " + bloco.getNomePrograma() + " após " + i + " instrucoes");
+                    System.out.println("Interrompendo " + bloco.getNomePrograma() + " após " + instrucoes + " instrucoes");
+                    bloco.setEstadoProcesso(Estado.BLOQUEADO);
+                    bloqueados.adicionaBloco(bloco);
+                    bloco.incrementaContador();
                     break;
                 }
-                instrucoes++;
+                // Se o comando do processo for SAIDA, finaliza o processo
+                if (bloco.getMemoriaRef().get(contador).equals("SAIDA")) {
+                    instrucoes++;
+                    System.out.println(bloco.getNomePrograma() + " terminado. X= " + bloco.getRegistradorX() + ". Y=" + bloco.getRegistradorY());
+                    removeProcesso(bloco, prontos);
+                    bloco.incrementaContador();
+                    break;
+                }
+                // Se o numero do instrucoes for igual ao quantum, interromper processo e exibir no log
+                if (instrucoes == quantum) {
+                    System.out.println("Interrompendo " + bloco.getNomePrograma() + " após " + instrucoes + " instrucoes");
+                    // Reposiciona o processo na fila de prontos apos a execucao
+                    bloco.setEstadoProcesso(Estado.PRONTO);
+                    prontos.adicionaBloco(bloco);
+                    break;
+                }
             }
         }
     }
+
+    private static void removeProcesso(BlocoControle bloco, ListaProntos prontos) {
+        tabela.removeBloco(bloco);
+        prontos.removeBloco(bloco);
+    }
+
+    private static void finalizaProcesso(BlocoControle bloco) {
+    }
+
     public static void exportaLog() {
 
     }
 
+    public static void printaBloco() {
+        BlocoControle bloco = tabela.getTabela().get(1);
+        System.out.println(bloco.getNomePrograma());
+        for (String i: bloco.getMemoriaRef()) {
+            System.out.println(i);
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         lerProgramas();
-        ListaProntos prontos = new ListaProntos(tabela);
         distribuiCreditos();
+        ListaProntos prontos = new ListaProntos(tabela);
+        ListaBloqueados bloqueados = new ListaBloqueados();
         setQuantum();
-        executaProcessos(prontos);
+        executaProcessos(prontos, bloqueados);
+        //printaBloco();
     }
 }
 

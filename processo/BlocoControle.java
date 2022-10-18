@@ -11,7 +11,7 @@ public class BlocoControle {
     String nomePrograma;
     List<String> memoriaRef = new ArrayList<>();
     Estado estadoProcesso;
-    int contadorPrograma;
+    int contadorPrograma = 0;
     int prioridade;
     int creditos;
     int registradorX;
@@ -25,7 +25,6 @@ public class BlocoControle {
         line = null;
         while ((line = reader.readLine()) != null) {
             memoriaRef.add(line);
-            line = reader.readLine();
         }
     }
 
@@ -33,6 +32,10 @@ public class BlocoControle {
     public boolean equals(Object o){
         if(this.nomePrograma==((BlocoControle)o).nomePrograma && this.prioridade == ((BlocoControle)o).prioridade) return true;
         return false;
+    }
+
+    public Estado getEstadoProcesso() {
+        return estadoProcesso;
     }
 
     public void setEstadoProcesso(Estado estadoProcesso) {
@@ -53,6 +56,30 @@ public class BlocoControle {
 
     public int getCreditos() {
         return creditos;
+    }
+
+    public void setRegistradorX(int registradorX) {
+        this.registradorX = registradorX;
+    }
+
+    public int getRegistradorX() {
+        return registradorX;
+    }
+
+    public void setRegistradorY(int registradorY) {
+        this.registradorY = registradorY;
+    }
+
+    public int getRegistradorY() {
+        return registradorY;
+    }
+
+    public void incrementaContador() {
+        this.contadorPrograma++;
+    }
+
+    public int getContadorPrograma() {
+        return contadorPrograma;
     }
 
     public String getNomePrograma() {

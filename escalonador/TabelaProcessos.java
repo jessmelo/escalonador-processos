@@ -12,6 +12,7 @@ public class TabelaProcessos {
         tabela.add(bloco);
     }
 
+    public void removeBloco(BlocoControle bloco) { tabela.remove(bloco); };
     public List<BlocoControle> getTabela() {
         return tabela;
     }
