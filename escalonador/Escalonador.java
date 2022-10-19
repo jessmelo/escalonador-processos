@@ -14,6 +14,7 @@ public class Escalonador {
     static int tempoEspera = 2;
     static int instrucoesRodadas;
     static ArrayList<Integer> trocasProcessos = new ArrayList<>();
+    static ArrayList<Integer> instrucoesQuantum = new ArrayList<>();
 
     public static void lerProgramas() throws IOException {
         // Carrega todos os arquivos programas .txt da pasta "programas" em ordem alfabetica
@@ -70,7 +71,6 @@ public class Escalonador {
                 // Pega o primeiro processo pronto e executa, a lista de prontos é atualizada
                 BlocoControle bloco = prontos.getPrimeiroDaLista();
                 prontos.removeBloco(bloco);
-                // System.out.println("creditos desse krai:" + bloco.getCreditos());
                 bloco.setCreditos(bloco.getCreditos() - 1);
                 bloco.setEstadoProcesso(Estado.EXECUTANDO);
                 System.out.println("Executando " + bloco.getNomePrograma());
@@ -79,32 +79,27 @@ public class Escalonador {
                 for (int i = 1; i <= quantum; i++) {
                     int contador = bloco.getContadorPrograma();
                     String instrucao = bloco.getMemoriaRef().get(contador);
-                    // System.out.println("contador = " + contador);
-                    // System.out.println("instrucao = " + instrucao);
                     // Se for registrador X, atualizar registrador do bloco e contagem de instrucoes
                     if (instrucao.startsWith("X=")) {
                         instrucoes++;
-                        instrucoesRodadas++;
                         bloco.setRegistradorX(Integer.parseInt(bloco.getMemoriaRef().get(contador).substring(2)));
                         bloco.incrementaContador();
                     }
                     // Se for registrador Y, atualizar registrador do bloco e contagem de instrucoes
                     if (instrucao.startsWith("Y=")) {
                         instrucoes++;
-                        instrucoesRodadas++;
                         bloco.setRegistradorY(Integer.parseInt(bloco.getMemoriaRef().get(contador).substring(2)));
                         bloco.incrementaContador();
                     }
                     // Se for instrucao de comando, incrementa instrucoes e continua
                     if (instrucao.equals("COM")) {
                         instrucoes++;
-                        instrucoesRodadas++;
                         bloco.incrementaContador();
                     }
                     // Se for instrucao de E/S, interromper o processo
                     if (instrucao.equals("E/S")) {
                         instrucoes++;
-                        instrucoesRodadas++;
+                        instrucoesQuantum(instrucoes);
                         System.out.println("E/S iniciada em " + bloco.getNomePrograma());
                         System.out.println("Interrompendo " + bloco.getNomePrograma() + " após " + instrucoes + " instrucoes");
                         bloco.trocas++;
@@ -117,8 +112,8 @@ public class Escalonador {
                     // Se o comando do processo for SAIDA, finaliza o processo
                     if (instrucao.equals("SAIDA")) {
                         instrucoes++;
-                        instrucoesRodadas++;
                         bloco.trocas++;
+                        instrucoesQuantum(instrucoes);
                         trocasProcessos(bloco.trocas);
                         System.out.println(bloco.getNomePrograma() + " terminado. X= " + bloco.getRegistradorX() + ". Y=" + bloco.getRegistradorY());
                         removeProcesso(bloco, prontos);
@@ -127,6 +122,7 @@ public class Escalonador {
                     // Se o numero do instrucoes for igual ao quantum, interromper processo e exibir no log
                     if (instrucoes == quantum) {
                         bloco.trocas++;
+                        instrucoesQuantum(instrucoes);
                         System.out.println("Interrompendo " + bloco.getNomePrograma() + " após " + instrucoes + " instrucoes");
                         // Reposiciona o processo na fila de prontos apos a execucao
                         bloco.setEstadoProcesso(Estado.PRONTO);
@@ -181,9 +177,19 @@ public class Escalonador {
         }
         System.out.println("MEDIA DE TROCAS:  " + sum);
     }
-    
-    public static void mediaInstrucoes() {
-        System.out.println("MEDIA DE INSTRUCOES:  " + quantum);
+    public static void instrucoesQuantum(int instrucoes) {
+        instrucoesQuantum.add(instrucoes);
+    }
+
+    public static void mediaInstrucoesQuantum() {
+        Double sum = 0.0;
+        if(!instrucoesQuantum.isEmpty()) {
+            for (Integer instrucoes : instrucoesQuantum) {
+                sum += instrucoes;
+            }
+            sum = sum.doubleValue() / instrucoesQuantum.size();
+        }
+        System.out.println("MEDIA DE INSTRUCOES:  " + sum);
     }
 
     public static void printQuantum() {
@@ -203,6 +209,7 @@ public class Escalonador {
         ListaBloqueados bloqueados = new ListaBloqueados();
         executaProcessos(prontos, bloqueados);
         mediaTrocas();
+        mediaInstrucoesQuantum();
         printQuantum();
     }
 }
